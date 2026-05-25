@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoneyMind — Reserva</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56; --green-mid: #5DCAA5;
+      --red: #D85A30; --red-light: #FAECE7;
+      --text: #1a1a18; --text-muted: #6b6b67; --text-hint: #a0a09a;
+      --bg: #f5f4ef; --surface: #ffffff;
+      --border: rgba(0,0,0,0.08); --border-mid: rgba(0,0,0,0.14);
+      --radius: 12px; --radius-sm: 8px; --sidebar: 220px;
+    }
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+    .layout { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: 100vh; }
+    .sidebar { background: var(--surface); border-right: 0.5px solid var(--border); padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+    .nav-label { font-size: 10px; font-weight: 500; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 10px; margin: 8px 0 4px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm); font-size: 14px; color: var(--text-muted); cursor: pointer; border: none; background: transparent; text-align: left; width: 100%; font-family: 'DM Sans', sans-serif; transition: background 0.13s; text-decoration: none; }
+    .nav-item:hover { background: var(--bg); }
+    .nav-item.active { background: var(--green-light); color: var(--green-dark); font-weight: 500; }
+    .sidebar-user { margin-top: auto; padding: 12px; background: var(--bg); border-radius: var(--radius); display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--green-dark); flex-shrink: 0; }
+    .user-name { font-size: 13px; font-weight: 500; } .user-email { font-size: 11px; color: var(--text-hint); }
+    .btn-logout { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 16px; display: flex; }
+    .btn-logout:hover { color: var(--red); }
+    .main { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .page-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+    .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+    .section-title { font-size: 14px; font-weight: 500; margin-bottom: 1rem; }
+    .btn-primary { height: 44px; padding: 0 20px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-ghost { height: 44px; padding: 0 20px; background: transparent; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text-muted); cursor: pointer; }
+    /* hero card */
+    .hero-card { background: var(--text); border-radius: var(--radius); padding: 2rem; color: #fff; position: relative; overflow: hidden; }
+    .hero-card::after { content: ''; position: absolute; bottom: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; border: 1px solid rgba(29,158,117,0.25); box-shadow: inset 0 0 0 40px rgba(29,158,117,0.08); }
+    .hero-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+    .hero-value { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; letter-spacing: -1px; color: #fff; line-height: 1; }
+    .hero-meta { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 8px; }
+    .hero-pct { font-size: 13px; color: var(--green-mid); font-weight: 500; margin-top: 4px; }
+    /* barra de progresso */
+    .progress-track { height: 10px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; margin: 1.25rem 0 0.5rem; }
+    .progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width 1s ease; }
+    .progress-labels { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.4); }
+    /* grid de stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .stat-box { padding: 1rem 1.25rem; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-sm); }
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+    /* aporte form */
+    .aporte-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+    .form-input { height: 44px; padding: 0 14px; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--text); outline: none; }
+    .form-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,0.1); }
+    .aporte-feedback { font-size: 13px; margin-top: 6px; display: none; }
+    .aporte-feedback.success { color: var(--green-dark); display: block; }
+    .aporte-feedback.error   { color: var(--red); display: block; }
+    /* historico */
+    .tx-list { display: flex; flex-direction: column; }
+    .tx-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-desc { font-size: 14px; font-weight: 500; }
+    .tx-date { font-size: 12px; color: var(--text-hint); margin-top: 2px; }
+    .tx-amount { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--green); }
+    /* dica investimento */
+    .tip-box { background: var(--green-light); border: 0.5px solid rgba(29,158,117,0.2); border-radius: var(--radius-sm); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+    .tip-box i { font-size: 20px; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+    .tip-text { font-size: 13px; color: var(--green-dark); line-height: 1.6; }
+    /* modal editar meta */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 1.5rem; width: 360px; display: flex; flex-direction: column; gap: 1rem; animation: fadeUp 0.2s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+    .modal-close { background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 20px; display: flex; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    .empty-state { text-align: center; padding: 2rem; color: var(--text-hint); font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo" onclick="location.href='dashboard.html'"><div class="logo-dot"></div>MoneyMind</div>
+    <nav class="nav">
+      <div class="nav-label">Principal</div>
+      <a class="nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item" href="transacoes.html"><i class="ti ti-arrows-exchange"></i> Transacoes</a>
+      <a class="nav-item active" href="reserva.html"><i class="ti ti-piggy-bank"></i> Reserva</a>
+      <a class="nav-item" href="relatorios.html"><i class="ti ti-chart-pie"></i> Relatorios</a>
+      <div class="nav-label">Conta</div>
+      <a class="nav-item" href="metas.html"><i class="ti ti-target"></i> Metas</a>
+      <a class="nav-item" href="#"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>
+      <a class="nav-item" href="#"><i class="ti ti-settings"></i> Configuracoes</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">FM</div>
+      <div><div class="user-name" id="sidebar-name">Carregando...</div><div class="user-email" id="sidebar-email"></div></div>
+      <button class="btn-logout" id="btn-logout" title="Sair"><i class="ti ti-logout"></i></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div>
+      <div class="page-title">Reserva de Emergencia</div>
+      <div class="page-subtitle">Acompanhe e alimente sua reserva financeira</div>
+    </div>
+
+    <!-- hero — progresso da reserva -->
+    <div class="hero-card" id="hero-card">
+      <div class="hero-label">Valor acumulado</div>
+      <div class="hero-value" id="hero-value">R$ 0,00</div>
+      <div class="hero-pct" id="hero-pct">0% da meta</div>
+      <div class="hero-meta" id="hero-meta">Meta: R$ 0,00</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-labels">
+        <span id="prog-current">R$ 0,00</span>
+        <span id="prog-target">R$ 0,00</span>
+      </div>
+    </div>
+
+    <!-- stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Faltam para a meta</div>
+        <div class="stat-value" id="stat-remaining" style="color:var(--red)">R$ 0,00</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Meses para concluir</div>
+        <div class="stat-value" id="stat-months">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Prazo definido</div>
+        <div class="stat-value" id="stat-deadline" style="font-size:14px;">Sem prazo</div>
+      </div>
+    </div>
+
+    <!-- aporte -->
+    <div class="card">
+      <div class="section-title">Adicionar valor a reserva</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.6;">
+        Informe quanto voce quer guardar agora. O valor sera registrado como uma entrada na categoria Reserva
+        e o progresso sera atualizado automaticamente.
+      </p>
+      <div class="aporte-form">
+        <div class="form-group">
+          <label class="form-label" for="aporte-valor">Valor do aporte (R$)</label>
+          <input class="form-input" id="aporte-valor" type="number" placeholder="0,00" min="0.01" step="0.01" style="width:180px;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="aporte-obs">Observacao (opcional)</label>
+          <input class="form-input" id="aporte-obs" type="text" placeholder="Ex: Bonus do mes" style="width:220px;" />
+        </div>
+        <button class="btn-primary" id="btn-aporte" style="margin-bottom:0;">
+          <i class="ti ti-plus"></i> Guardar agora
+        </button>
+      </div>
+      <div class="aporte-feedback" id="aporte-feedback"></div>
+    </div>
+
+    <!-- dica -->
+    <div class="tip-box">
+      <i class="ti ti-bulb"></i>
+      <div class="tip-text">
+        <strong>Onde guardar sua reserva?</strong> O <strong>Tesouro Selic</strong> e a melhor opcao: rendimento diario acima da poupanca, liquidez imediata e sem risco. Disponivel a partir de R$ 30 em qualquer corretora (Nubank, XP, Rico, etc.).<br>
+        Lembre-se: a reserva de emergencia deve cobrir de <strong>3 a 6 meses</strong> das suas despesas mensais.
+      </div>
+    </div>
+
+    <!-- historico de aportes -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="section-title" style="margin:0;">Historico de aportes</div>
+        <button class="btn-ghost" style="height:32px;font-size:12px;" id="btn-editar-meta">
+          <i class="ti ti-edit"></i> Editar meta
+        </button>
+      </div>
+      <div class="tx-list" id="historico-list">
+        <div class="empty-state"><i class="ti ti-loader"></i>Carregando...</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- modal editar meta -->
+<div class="modal-overlay" id="modal-meta">
+  <div class="modal">
+    <div class="modal-title">
+      <span>Editar meta</span>
+      <button class="modal-close" id="modal-close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="meta-name">Nome da meta</label>
+      <input class="form-input" id="meta-name" type="text" placeholder="Ex: Reserva de Emergencia" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="meta-target">Valor alvo (R$)</label>
+      <input class="form-input" id="meta-target" type="number" placeholder="9600" min="1" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="meta-deadline">Prazo (opcional)</label>
+      <input class="form-input" id="meta-deadline" type="date" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="btn-cancel-meta">Cancelar</button>
+      <button class="btn-primary" id="btn-save-meta" style="height:38px;"><i class="ti ti-check"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var API_URL = 'http://localhost:3333/api';
+  var token   = localStorage.getItem('mm_token');
+  var user    = JSON.parse(localStorage.getItem('mm_user') || '{}');
+  var goalId  = null;
+
+  if (!token) window.location.href = 'login.html';
+
+  async function apiFetch(path, options) {
+    var opts = Object.assign({ headers: {} }, options);
+    opts.headers['Authorization'] = 'Bearer ' + token;
+    opts.headers['Content-Type']  = 'application/json';
+    var res = await fetch(API_URL + path, opts);
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  function brl(v) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0); }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    var p = String(d).substring(0, 10).split('-');
+    var m = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    return parseInt(p[2]) + ' ' + (m[parseInt(p[1]) - 1] || '') + ' ' + p[0];
+  }
+
+  function setupUser() {
+    var name = user.name || 'Usuario';
+    var initials = name.split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+    document.getElementById('sidebar-avatar').textContent = initials;
+    document.getElementById('sidebar-name').textContent   = name;
+    document.getElementById('sidebar-email').textContent  = user.email || '';
+  }
+
+  async function loadGoal() {
+    var data = await apiFetch('/goals');
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      document.getElementById('hero-value').textContent = 'Sem meta';
+      return;
+    }
+
+    var goal = data[0];
+    goalId = goal.id;
+    var current = Number(goal.current_amount);
+    var target  = Number(goal.target_amount);
+    var pct     = Math.min(Math.round((current / target) * 100), 100);
+    var remaining = Math.max(target - current, 0);
+
+    document.getElementById('hero-value').textContent  = brl(current);
+    document.getElementById('hero-pct').textContent    = pct + '% da meta atingida';
+    document.getElementById('hero-meta').textContent   = 'Meta: ' + brl(target);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('prog-current').textContent  = brl(current);
+    document.getElementById('prog-target').textContent   = brl(target);
+    document.getElementById('stat-remaining').textContent = brl(remaining);
+
+    // Calcula meses restantes assumindo aporte medio de R$ 300/mes
+    if (remaining > 0) {
+      var meses = Math.ceil(remaining / 300);
+      document.getElementById('stat-months').textContent = meses + ' meses*';
+    } else {
+      document.getElementById('stat-months').textContent = 'Concluida!';
+      document.getElementById('stat-months').style.color = 'var(--green)';
+    }
+
+    if (goal.deadline) {
+      document.getElementById('stat-deadline').textContent = fmtDate(goal.deadline);
+    }
+
+    // Pre-preenche modal de edicao
+    document.getElementById('meta-name').value   = goal.name;
+    document.getElementById('meta-target').value = target;
+    if (goal.deadline) document.getElementById('meta-deadline').value = String(goal.deadline).substring(0,10);
+  }
+
+  async function loadHistorico() {
+    // Busca transacoes do tipo income com origem relacionada a reserva
+    var data = await apiFetch('/transactions?type=income&limit=20');
+    if (!data) return;
+
+    var reservas = data.data.filter(function(t) {
+      return (t.notes && t.notes.includes('reserva')) ||
+             (t.category_name && t.category_name.toLowerCase().includes('reserva')) ||
+             (t.description && t.description.toLowerCase().includes('aporte'));
+    });
+
+    var list = document.getElementById('historico-list');
+    list.innerHTML = '';
+
+    if (reservas.length === 0) {
+      list.innerHTML = '<div class="empty-state"><i class="ti ti-inbox"></i>Nenhum aporte registrado ainda.<br>Use o formulario acima para comecar.</div>';
+      return;
+    }
+
+    reservas.forEach(function(tx) {
+      var item = document.createElement('div');
+      item.className = 'tx-item';
+      item.innerHTML =
+        '<div>' +
+          '<div class="tx-desc"><i class="ti ti-piggy-bank" style="color:var(--green);margin-right:6px;"></i>' + tx.description + '</div>' +
+          '<div class="tx-date">' + fmtDate(tx.date) + (tx.source === 'whatsapp' ? ' · via WhatsApp' : '') + '</div>' +
+        '</div>' +
+        '<div class="tx-amount">+ ' + brl(tx.amount) + '</div>';
+      list.appendChild(item);
+    });
+  }
+
+  async function fazerAporte() {
+    if (!goalId) { alert('Nenhuma meta encontrada. Crie uma meta primeiro.'); return; }
+    var valor = parseFloat(document.getElementById('aporte-valor').value);
+    var obs   = document.getElementById('aporte-obs').value.trim();
+    var fb    = document.getElementById('aporte-feedback');
+
+    if (!valor || valor <= 0) {
+      fb.className = 'aporte-feedback error';
+      fb.textContent = 'Informe um valor maior que zero.';
+      return;
+    }
+
+    document.getElementById('btn-aporte').disabled = true;
+
+    var result = await apiFetch('/goals/' + goalId + '/deposit', {
+      method: 'PUT',
+      body: JSON.stringify({ amount: valor })
+    });
+
+    document.getElementById('btn-aporte').disabled = false;
+
+    if (!result || result.error) {
+      fb.className = 'aporte-feedback error';
+      fb.textContent = result ? result.error : 'Erro ao registrar aporte.';
+      return;
+    }
+
+    document.getElementById('aporte-valor').value = '';
+    document.getElementById('aporte-obs').value   = '';
+    fb.className = 'aporte-feedback success';
+    fb.textContent = 'Aporte de ' + brl(valor) + ' registrado com sucesso!';
+
+    loadGoal();
+    loadHistorico();
+
+    setTimeout(function() { fb.className = 'aporte-feedback'; }, 4000);
+  }
+
+  function logout() { localStorage.removeItem('mm_token'); localStorage.removeItem('mm_user'); window.location.href = 'login.html'; }
+
+  // Modal editar meta
+  document.getElementById('btn-editar-meta').addEventListener('click', function() {
+    document.getElementById('modal-meta').classList.add('open');
+  });
+  document.getElementById('modal-close').addEventListener('click', function() {
+    document.getElementById('modal-meta').classList.remove('open');
+  });
+  document.getElementById('btn-cancel-meta').addEventListener('click', function() {
+    document.getElementById('modal-meta').classList.remove('open');
+  });
+  document.getElementById('btn-save-meta').addEventListener('click', async function() {
+    if (!goalId) return;
+    var name     = document.getElementById('meta-name').value.trim();
+    var target   = parseFloat(document.getElementById('meta-target').value);
+    var deadline = document.getElementById('meta-deadline').value;
+    if (!name || !target) { alert('Nome e valor sao obrigatorios.'); return; }
+    var r = await apiFetch('/goals/' + goalId, {
+      method: 'PUT',
+      body: JSON.stringify({ name, target_amount: target, deadline: deadline || null })
+    });
+    if (r && !r.error) {
+      document.getElementById('modal-meta').classList.remove('open');
+      loadGoal();
+    }
+  });
+
+  document.getElementById('btn-aporte').addEventListener('click', fazerAporte);
+  document.getElementById('aporte-valor').addEventListener('keydown', function(e) { if (e.key === 'Enter') fazerAporte(); });
+  document.getElementById('btn-logout').addEventListener('click', logout);
+
+  setupUser();
+  loadGoal();
+  loadHistorico();
+</script>
+</body>
+</html>

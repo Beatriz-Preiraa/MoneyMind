@@ -1,0 +1,110 @@
+
+<div id="chatbot-container">
+  <div id="chat-messages"></div>
+
+  <div class="chat-input">
+    <input
+      type="text"
+      id="chat-input"
+      placeholder="Digite uma transacao..."
+    />
+
+    <button id="send-btn">
+      Enviar
+    </button>
+  </div>
+</div>
+
+<style>
+#chatbot-container {
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+#chat-messages {
+  height: 400px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.user {
+  background: #dbeafe;
+}
+
+.bot {
+  background: #dcfce7;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+</style>
+
+<script>
+const input = document.getElementById('chat-input');
+const button = document.getElementById('send-btn');
+const messages = document.getElementById('chat-messages');
+
+function addMessage(text, type) {
+
+  const div = document.createElement('div');
+
+  div.className = `message ${type}`;
+
+  div.innerText = text;
+
+  messages.appendChild(div);
+
+  messages.scrollTop = messages.scrollHeight;
+}
+
+button.addEventListener('click', async () => {
+
+  const text = input.value;
+
+  if (!text) return;
+
+  addMessage(text, 'user');
+
+  input.value = '';
+
+  const response = await fetch(
+    '/api/chatbot/message',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        message: text
+      })
+    }
+  );
+
+  const data = await response.json();
+
+  addMessage(data.message, 'bot');
+
+  if (window.carregarDashboard) {
+    carregarDashboard();
+  }
+
+  if (window.carregarTransacoes) {
+    carregarTransacoes();
+  }
+});
+</script>

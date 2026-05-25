@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoneyMind — Metas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56; --green-mid: #5DCAA5;
+      --red: #D85A30; --red-light: #FAECE7;
+      --text: #1a1a18; --text-muted: #6b6b67; --text-hint: #a0a09a;
+      --bg: #f5f4ef; --surface: #ffffff;
+      --border: rgba(0,0,0,0.08); --border-mid: rgba(0,0,0,0.14);
+      --radius: 12px; --radius-sm: 8px; --sidebar: 220px;
+    }
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+    .layout { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: 100vh; }
+    .sidebar { background: var(--surface); border-right: 0.5px solid var(--border); padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+    .nav-label { font-size: 10px; font-weight: 500; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 10px; margin: 8px 0 4px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm); font-size: 14px; color: var(--text-muted); border: none; background: transparent; text-align: left; width: 100%; font-family: 'DM Sans', sans-serif; transition: background 0.13s; text-decoration: none; cursor: pointer; }
+    .nav-item:hover { background: var(--bg); }
+    .nav-item.active { background: var(--green-light); color: var(--green-dark); font-weight: 500; }
+    .sidebar-user { margin-top: auto; padding: 12px; background: var(--bg); border-radius: var(--radius); display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--green-dark); flex-shrink: 0; }
+    .user-name { font-size: 13px; font-weight: 500; } .user-email { font-size: 11px; color: var(--text-hint); }
+    .btn-logout { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 16px; display: flex; }
+    .btn-logout:hover { color: var(--red); }
+    .main { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+    .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+    .btn-primary { height: 36px; padding: 0 16px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-primary:hover { background: var(--green-dark); }
+    /* grid de metas */
+    .metas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+    .meta-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; display: flex; flex-direction: column; gap: 12px; }
+    .meta-card.concluida { border-color: var(--green-mid); background: var(--green-light); }
+    .meta-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .meta-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+    .meta-actions { display: flex; gap: 4px; }
+    .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 15px; padding: 4px; border-radius: 6px; display: flex; }
+    .btn-icon:hover { color: var(--text); background: var(--bg); }
+    .btn-icon.del:hover { color: var(--red); background: var(--red-light); }
+    .meta-values { display: flex; justify-content: space-between; align-items: flex-end; }
+    .meta-current { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--green-dark); }
+    .meta-target { font-size: 12px; color: var(--text-muted); text-align: right; }
+    .meta-target strong { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); display: block; }
+    .progress-track { height: 6px; background: rgba(0,0,0,0.07); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
+    .meta-footer { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-hint); }
+    .badge-concluida { display: inline-flex; align-items: center; gap: 4px; background: var(--green-light); color: var(--green-dark); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
+    /* aporte inline */
+    .aporte-inline { display: flex; gap: 6px; margin-top: 4px; }
+    .aporte-input { flex: 1; height: 34px; padding: 0 10px; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); outline: none; background: var(--surface); }
+    .aporte-input:focus { border-color: var(--green); }
+    .btn-aporte { height: 34px; padding: 0 12px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .btn-aporte:hover { background: var(--green-dark); }
+    /* empty state */
+    .empty-full { text-align: center; padding: 4rem 1rem; color: var(--text-hint); }
+    .empty-full i { font-size: 48px; margin-bottom: 12px; display: block; color: var(--border-mid); }
+    .empty-full p { font-size: 14px; margin-bottom: 1rem; }
+    /* modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 1.5rem; width: 380px; display: flex; flex-direction: column; gap: 1rem; animation: fadeUp 0.2s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+    .modal-close { background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 20px; display: flex; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+    .form-input { height: 40px; padding: 0 12px; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; width: 100%; }
+    .form-input:focus { border-color: var(--green); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-ghost { height: 38px; padding: 0 14px; background: transparent; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; }
+    .modal-feedback { font-size: 12px; color: var(--red); display: none; }
+    .modal-feedback.visible { display: block; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo" onclick="location.href='dashboard.html'"><div class="logo-dot"></div>MoneyMind</div>
+    <nav class="nav">
+      <div class="nav-label">Principal</div>
+      <a class="nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item" href="transacoes.html"><i class="ti ti-arrows-exchange"></i> Transacoes</a>
+      <a class="nav-item" href="reserva.html"><i class="ti ti-piggy-bank"></i> Reserva</a>
+      <a class="nav-item" href="relatorios.html"><i class="ti ti-chart-pie"></i> Relatorios</a>
+      <div class="nav-label">Conta</div>
+      <a class="nav-item active" href="metas.html"><i class="ti ti-target"></i> Metas</a>
+      <a class="nav-item" href="#"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>
+      <a class="nav-item" href="#"><i class="ti ti-settings"></i> Configuracoes</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">FM</div>
+      <div><div class="user-name" id="sidebar-name">Carregando...</div><div class="user-email" id="sidebar-email"></div></div>
+      <button class="btn-logout" id="btn-logout"><i class="ti ti-logout"></i></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Metas Financeiras</div>
+        <div class="page-subtitle">Crie e acompanhe seus objetivos de poupanca</div>
+      </div>
+      <button class="btn-primary" id="btn-nova-meta"><i class="ti ti-plus"></i> Nova meta</button>
+    </div>
+
+    <div class="metas-grid" id="metas-grid">
+      <div class="empty-full" style="grid-column:1/-1;">
+        <i class="ti ti-loader"></i>
+        <p>Carregando metas...</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- modal nova / editar meta -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-title-text">Nova meta</span>
+      <button class="modal-close" id="modal-close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="meta-name">Nome da meta</label>
+      <input class="form-input" id="meta-name" type="text" placeholder="Ex: Viagem para Europa, Carro novo..." />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="meta-target">Valor alvo (R$)</label>
+        <input class="form-input" id="meta-target" type="number" placeholder="5000" min="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="meta-current">Ja tenho (R$)</label>
+        <input class="form-input" id="meta-current" type="number" placeholder="0" min="0" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="meta-deadline">Prazo (opcional)</label>
+      <input class="form-input" id="meta-deadline" type="date" />
+    </div>
+    <div class="modal-feedback" id="modal-feedback">Preencha nome e valor alvo.</div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="btn-cancel">Cancelar</button>
+      <button class="btn-primary" id="btn-save" style="height:38px;"><i class="ti ti-check"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var API_URL = 'http://localhost:3333/api';
+  var token   = localStorage.getItem('mm_token');
+  var user    = JSON.parse(localStorage.getItem('mm_user') || '{}');
+  var editingId = null;
+
+  if (!token) window.location.href = 'login.html';
+
+  async function apiFetch(path, options) {
+    var opts = Object.assign({ headers: {} }, options);
+    opts.headers['Authorization'] = 'Bearer ' + token;
+    opts.headers['Content-Type']  = 'application/json';
+    var res = await fetch(API_URL + path, opts);
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  function brl(v) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0); }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    var p = String(d).substring(0,10).split('-');
+    var m = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    return parseInt(p[2]) + ' ' + (m[parseInt(p[1])-1]||'') + ' ' + p[0];
+  }
+
+  function setupUser() {
+    var name = user.name || 'Usuario';
+    var initials = name.split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+    document.getElementById('sidebar-avatar').textContent = initials;
+    document.getElementById('sidebar-name').textContent   = name;
+    document.getElementById('sidebar-email').textContent  = user.email || '';
+  }
+
+  // Cores para as barras de progresso das metas
+  var coresMeta = ['#1D9E75','#378ADD','#7F77DD','#EF9F27','#D4537E','#639922'];
+
+  async function loadMetas() {
+    var data = await apiFetch('/goals');
+    var grid = document.getElementById('metas-grid');
+    grid.innerHTML = '';
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      grid.innerHTML =
+        '<div class="empty-full" style="grid-column:1/-1;">' +
+        '<i class="ti ti-target"></i>' +
+        '<p>Voce ainda nao tem metas criadas.<br>Crie sua primeira meta financeira!</p>' +
+        '<button class="btn-primary" onclick="openModal()" style="margin:0 auto;"><i class="ti ti-plus"></i> Criar primeira meta</button>' +
+        '</div>';
+      return;
+    }
+
+    data.forEach(function(meta, idx) {
+      var current   = Number(meta.current_amount);
+      var target    = Number(meta.target_amount);
+      var pct       = Math.min(Math.round((current / target) * 100), 100);
+      var remaining = Math.max(target - current, 0);
+      var cor       = coresMeta[idx % coresMeta.length];
+      var concluida = pct >= 100;
+
+      var card = document.createElement('div');
+      card.className = 'meta-card' + (concluida ? ' concluida' : '');
+      card.innerHTML =
+        '<div class="meta-header">' +
+          '<div class="meta-name">' + meta.name + '</div>' +
+          '<div class="meta-actions">' +
+            (concluida ? '<span class="badge-concluida"><i class="ti ti-check"></i> Concluida</span>' : '') +
+            '<button class="btn-icon" data-id="' + meta.id + '" data-action="edit" title="Editar"><i class="ti ti-edit"></i></button>' +
+            '<button class="btn-icon del" data-id="' + meta.id + '" data-action="delete" title="Excluir"><i class="ti ti-trash"></i></button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="meta-values">' +
+          '<div>' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">Acumulado</div>' +
+            '<div class="meta-current" style="color:' + cor + ';">' + brl(current) + '</div>' +
+          '</div>' +
+          '<div class="meta-target">' +
+            '<div>Meta</div>' +
+            '<strong>' + brl(target) + '</strong>' +
+          '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;background:' + cor + ';"></div></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-hint);margin-top:4px;">' +
+            '<span>' + pct + '% atingido</span>' +
+            (remaining > 0 ? '<span>Faltam ' + brl(remaining) + '</span>' : '<span style="color:var(--green-dark);font-weight:500;">Meta atingida!</span>') +
+          '</div>' +
+        '</div>' +
+        (meta.deadline ? '<div style="font-size:12px;color:var(--text-hint);"><i class="ti ti-calendar" style="margin-right:4px;"></i>Prazo: ' + fmtDate(meta.deadline) + '</div>' : '') +
+        (!concluida ?
+          '<div class="aporte-inline">' +
+            '<input class="aporte-input" type="number" placeholder="Valor do aporte (R$)" min="0.01" step="0.01" data-goal-id="' + meta.id + '" />' +
+            '<button class="btn-aporte" data-goal-id="' + meta.id + '">Guardar</button>' +
+          '</div>' : '');
+
+      // Evento de aporte
+      var btnAporte = card.querySelector('.btn-aporte');
+      if (btnAporte) {
+        btnAporte.addEventListener('click', async function() {
+          var goalId = this.getAttribute('data-goal-id');
+          var input  = card.querySelector('.aporte-input');
+          var valor  = parseFloat(input.value);
+          if (!valor || valor <= 0) { input.style.borderColor = 'var(--red)'; return; }
+          input.style.borderColor = '';
+          var r = await apiFetch('/goals/' + goalId + '/deposit', { method: 'PUT', body: JSON.stringify({ amount: valor }) });
+          if (r && !r.error) { loadMetas(); } else { alert('Erro ao registrar aporte.'); }
+        });
+      }
+
+      // Eventos de editar e deletar
+      card.querySelectorAll('[data-action]').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          var id     = this.getAttribute('data-id');
+          var action = this.getAttribute('data-action');
+          if (action === 'delete') {
+            if (!confirm('Excluir a meta "' + meta.name + '"?')) return;
+            var r = await apiFetch('/goals/' + id, { method: 'DELETE' });
+            if (r && !r.error) loadMetas();
+          } else if (action === 'edit') {
+            editingId = id;
+            document.getElementById('modal-title-text').textContent = 'Editar meta';
+            document.getElementById('meta-name').value    = meta.name;
+            document.getElementById('meta-target').value  = target;
+            document.getElementById('meta-current').value = current;
+            document.getElementById('meta-deadline').value = meta.deadline ? String(meta.deadline).substring(0,10) : '';
+            document.getElementById('modal').classList.add('open');
+          }
+        });
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  function openModal() {
+    editingId = null;
+    document.getElementById('modal-title-text').textContent = 'Nova meta';
+    document.getElementById('meta-name').value    = '';
+    document.getElementById('meta-target').value  = '';
+    document.getElementById('meta-current').value = '';
+    document.getElementById('meta-deadline').value = '';
+    document.getElementById('modal-feedback').classList.remove('visible');
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('modal-feedback').classList.remove('visible');
+  }
+
+  async function saveMeta() {
+    var name     = document.getElementById('meta-name').value.trim();
+    var target   = parseFloat(document.getElementById('meta-target').value);
+    var current  = parseFloat(document.getElementById('meta-current').value) || 0;
+    var deadline = document.getElementById('meta-deadline').value;
+    var fb       = document.getElementById('modal-feedback');
+
+    if (!name || !target || target <= 0) { fb.textContent = 'Preencha nome e valor alvo.'; fb.classList.add('visible'); return; }
+    fb.classList.remove('visible');
+
+    var body = { name, target_amount: target, current_amount: current, deadline: deadline || null };
+    var url    = editingId ? '/goals/' + editingId : '/goals';
+    var method = editingId ? 'PUT' : 'POST';
+
+    var r = await apiFetch(url, { method, body: JSON.stringify(body) });
+    if (!r || r.error) { fb.textContent = r ? r.error : 'Erro ao salvar.'; fb.classList.add('visible'); return; }
+    closeModal();
+    loadMetas();
+  }
+
+  function logout() { localStorage.removeItem('mm_token'); localStorage.removeItem('mm_user'); window.location.href = 'login.html'; }
+
+  document.getElementById('btn-nova-meta').addEventListener('click', openModal);
+  document.getElementById('btn-logout').addEventListener('click', logout);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('btn-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+  document.getElementById('btn-save').addEventListener('click', saveMeta);
+
+  setupUser();
+  loadMetas();
+</script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoneyMind — Relatórios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56;
+      --red: #D85A30; --red-light: #FAECE7;
+      --blue: #185FA5; --blue-light: #E6F1FB;
+      --text: #1a1a18; --text-muted: #6b6b67; --text-hint: #a0a09a;
+      --bg: #f5f4ef; --surface: #ffffff;
+      --border: rgba(0,0,0,0.08); --border-mid: rgba(0,0,0,0.14);
+      --radius: 12px; --radius-sm: 8px; --sidebar: 220px;
+    }
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+    .layout { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: 100vh; }
+    .sidebar { background: var(--surface); border-right: 0.5px solid var(--border); padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+    .nav-label { font-size: 10px; font-weight: 500; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 10px; margin: 8px 0 4px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm); font-size: 14px; color: var(--text-muted); border: none; background: transparent; text-align: left; width: 100%; font-family: 'DM Sans', sans-serif; transition: background 0.13s; text-decoration: none; cursor: pointer; }
+    .nav-item:hover { background: var(--bg); }
+    .nav-item.active { background: var(--green-light); color: var(--green-dark); font-weight: 500; }
+    .sidebar-user { margin-top: auto; padding: 12px; background: var(--bg); border-radius: var(--radius); display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--green-dark); flex-shrink: 0; }
+    .user-name { font-size: 13px; font-weight: 500; } .user-email { font-size: 11px; color: var(--text-hint); }
+    .btn-logout { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 16px; display: flex; }
+    .btn-logout:hover { color: var(--red); }
+    .main { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+    .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+    .section-title { font-size: 14px; font-weight: 500; margin-bottom: 1rem; }
+    .chart-wrap { position: relative; width: 100%; height: 260px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    /* tabela resumo mensal */
+    .resumo-table { width: 100%; border-collapse: collapse; }
+    .resumo-table th { text-align: left; font-size: 11px; font-weight: 500; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 0 10px; border-bottom: 0.5px solid var(--border); }
+    .resumo-table td { padding: 11px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; }
+    .resumo-table tr:last-child td { border-bottom: none; }
+    /* seletor de ano */
+    .filter-select { height: 36px; padding: 0 12px; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); cursor: pointer; outline: none; }
+    /* barra de categoria */
+    .cat-bar-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .cat-bar-item { display: flex; flex-direction: column; gap: 4px; }
+    .cat-bar-header { display: flex; justify-content: space-between; font-size: 13px; }
+    .cat-bar-track { height: 6px; background: var(--bg); border-radius: 999px; overflow: hidden; }
+    .cat-bar-fill { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
+    .empty-state { text-align: center; padding: 2rem; color: var(--text-hint); font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo" onclick="location.href='dashboard.html'"><div class="logo-dot"></div>MoneyMind</div>
+    <nav class="nav">
+      <div class="nav-label">Principal</div>
+      <a class="nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item" href="transacoes.html"><i class="ti ti-arrows-exchange"></i> Transacoes</a>
+      <a class="nav-item" href="reserva.html"><i class="ti ti-piggy-bank"></i> Reserva</a>
+      <a class="nav-item active" href="relatorios.html"><i class="ti ti-chart-pie"></i> Relatorios</a>
+      <div class="nav-label">Conta</div>
+      <a class="nav-item" href="metas.html"><i class="ti ti-target"></i> Metas</a>
+      <a class="nav-item" href="#"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>
+      <a class="nav-item" href="#"><i class="ti ti-settings"></i> Configuracoes</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">FM</div>
+      <div><div class="user-name" id="sidebar-name">Carregando...</div><div class="user-email" id="sidebar-email"></div></div>
+      <button class="btn-logout" id="btn-logout"><i class="ti ti-logout"></i></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Relatorios</div>
+        <div class="page-subtitle">Visao anual das suas financas</div>
+      </div>
+      <select class="filter-select" id="filter-year">
+        <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
+      </select>
+    </div>
+
+    <!-- grafico evolucao anual -->
+    <div class="card">
+      <div class="section-title">Entradas x Saidas — mensal</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Entradas</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#D85A30"></div>Saidas</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#639922;border-radius:50%;"></div>Saldo acumulado</div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chart-anual" role="img" aria-label="Grafico anual de entradas e saidas mensais"></canvas>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- categorias mais gastas no ano -->
+      <div class="card">
+        <div class="section-title">Maiores gastos por categoria</div>
+        <div class="cat-bar-wrap" id="cat-bars">
+          <div class="empty-state"><i class="ti ti-loader"></i> Carregando...</div>
+        </div>
+      </div>
+
+      <!-- tabela resumo por mes -->
+      <div class="card">
+        <div class="section-title">Resumo por mes</div>
+        <table class="resumo-table">
+          <thead>
+            <tr>
+              <th>Mes</th>
+              <th style="text-align:right">Entradas</th>
+              <th style="text-align:right">Saidas</th>
+              <th style="text-align:right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="resumo-tbody">
+            <tr><td colspan="4"><div class="empty-state">Carregando...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- grafico pizza categorias -->
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">Distribuicao de gastos no ano</div>
+        <div id="cat-legend" class="legend" style="margin-bottom:12px;"></div>
+        <div style="position:relative;height:220px;">
+          <canvas id="chart-pizza" role="img" aria-label="Pizza de gastos por categoria no ano"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Indicadores do ano</div>
+        <div id="indicadores" style="display:flex;flex-direction:column;gap:14px;"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  var API_URL = 'http://localhost:3333/api';
+  var token   = localStorage.getItem('mm_token');
+  var user    = JSON.parse(localStorage.getItem('mm_user') || '{}');
+
+  if (!token) window.location.href = 'login.html';
+
+  async function apiFetch(path, options) {
+    var opts = Object.assign({ headers: {} }, options);
+    opts.headers['Authorization'] = 'Bearer ' + token;
+    opts.headers['Content-Type']  = 'application/json';
+    var res = await fetch(API_URL + path, opts);
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  function brl(v) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0); }
+
+  function setupUser() {
+    var name = user.name || 'Usuario';
+    var initials = name.split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+    document.getElementById('sidebar-avatar').textContent = initials;
+    document.getElementById('sidebar-name').textContent   = name;
+    document.getElementById('sidebar-email').textContent  = user.email || '';
+  }
+
+  var chartAnual = null;
+  var chartPizza = null;
+  var catColors  = ['#EF9F27','#378ADD','#7F77DD','#D4537E','#639922','#1D9E75','#D85A30','#BA7517'];
+  var mesesNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  async function loadRelatorio() {
+    var year = document.getElementById('filter-year').value;
+
+    // Busca dados de todos os meses do ano em paralelo
+    var promessas = mesesNomes.map(function(_, i) {
+      return apiFetch('/dashboard/summary?month=' + (i + 1) + '&year=' + year);
+    });
+
+    var resultados = await Promise.all(promessas);
+
+    var incomes   = [];
+    var expenses  = [];
+    var saldos    = [];
+    var saldoAcum = 0;
+    var catTotais = {};
+
+    resultados.forEach(function(r) {
+      if (!r) { incomes.push(0); expenses.push(0); saldos.push(0); return; }
+      var inc = Number(r.total_income  || 0);
+      var exp = Number(r.total_expense || 0);
+      saldoAcum += inc - exp;
+      incomes.push(inc);
+      expenses.push(exp);
+      saldos.push(saldoAcum);
+
+      // Acumula categorias do ano
+      (r.expenses_by_category || []).forEach(function(c) {
+        catTotais[c.category_name] = (catTotais[c.category_name] || 0) + Number(c.total);
+      });
+    });
+
+    // Grafico anual
+    if (chartAnual) {
+      chartAnual.data.datasets[0].data = incomes;
+      chartAnual.data.datasets[1].data = expenses;
+      chartAnual.data.datasets[2].data = saldos;
+      chartAnual.update();
+    } else {
+      chartAnual = new Chart(document.getElementById('chart-anual'), {
+        type: 'bar',
+        data: {
+          labels: mesesNomes,
+          datasets: [
+            { label: 'Entradas', data: incomes,  backgroundColor: '#1D9E75', borderRadius: 4, barPercentage: 0.5 },
+            { label: 'Saidas',   data: expenses, backgroundColor: '#D85A30', borderRadius: 4, barPercentage: 0.5 },
+            { label: 'Saldo',    data: saldos,   type: 'line', borderColor: '#639922', backgroundColor: 'transparent', tension: 0.4, pointBackgroundColor: '#639922', pointRadius: 4, borderWidth: 2, yAxisID: 'y' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#888' } },
+            y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#888', callback: function(v) { return 'R$' + (v/1000).toFixed(0) + 'k'; } } }
+          }
+        }
+      });
+    }
+
+    // Tabela resumo por mes
+    var tbody = document.getElementById('resumo-tbody');
+    tbody.innerHTML = '';
+    incomes.forEach(function(inc, i) {
+      var exp   = expenses[i];
+      var saldo = inc - exp;
+      if (inc === 0 && exp === 0) return;
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="font-weight:500;">' + mesesNomes[i] + '</td>' +
+        '<td style="text-align:right;color:var(--green);font-size:13px;">' + brl(inc) + '</td>' +
+        '<td style="text-align:right;color:var(--red);font-size:13px;">' + brl(exp) + '</td>' +
+        '<td style="text-align:right;color:' + (saldo >= 0 ? 'var(--green-dark)' : 'var(--red)') + ';font-family:Syne,sans-serif;font-weight:700;font-size:13px;">' + brl(saldo) + '</td>';
+      tbody.appendChild(tr);
+    });
+    if (tbody.children.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state">Sem dados para este ano.</div></td></tr>';
+    }
+
+    // Barras de categoria
+    var catOrdenadas = Object.entries(catTotais).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 6);
+    var maxCat = catOrdenadas.length > 0 ? catOrdenadas[0][1] : 1;
+    var barsEl = document.getElementById('cat-bars');
+    barsEl.innerHTML = '';
+
+    if (catOrdenadas.length === 0) {
+      barsEl.innerHTML = '<div class="empty-state">Sem dados de categorias.</div>';
+    } else {
+      catOrdenadas.forEach(function(entry, i) {
+        var pct = Math.round((entry[1] / maxCat) * 100);
+        var div = document.createElement('div');
+        div.className = 'cat-bar-item';
+        div.innerHTML =
+          '<div class="cat-bar-header">' +
+            '<span>' + entry[0] + '</span>' +
+            '<span style="font-family:Syne,sans-serif;font-weight:700;font-size:13px;">' + brl(entry[1]) + '</span>' +
+          '</div>' +
+          '<div class="cat-bar-track"><div class="cat-bar-fill" style="width:' + pct + '%;background:' + catColors[i % catColors.length] + ';"></div></div>';
+        barsEl.appendChild(div);
+      });
+    }
+
+    // Pizza de categorias
+    var catLabels = catOrdenadas.map(function(e) { return e[0]; });
+    var catValues = catOrdenadas.map(function(e) { return e[1]; });
+    var catCores  = catColors.slice(0, catLabels.length);
+
+    var legendEl = document.getElementById('cat-legend');
+    legendEl.innerHTML = '';
+    catLabels.forEach(function(label, i) {
+      var item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = '<div class="legend-dot" style="background:' + catCores[i] + ';border-radius:50%;"></div>' + label;
+      legendEl.appendChild(item);
+    });
+
+    if (chartPizza) {
+      chartPizza.data.labels = catLabels;
+      chartPizza.data.datasets[0].data = catValues;
+      chartPizza.data.datasets[0].backgroundColor = catCores;
+      chartPizza.update();
+    } else if (catValues.length > 0) {
+      chartPizza = new Chart(document.getElementById('chart-pizza'), {
+        type: 'doughnut',
+        data: {
+          labels: catLabels,
+          datasets: [{ data: catValues, backgroundColor: catCores, borderWidth: 0, hoverOffset: 4 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return ' ' + brl(ctx.parsed); } } } },
+          cutout: '60%'
+        }
+      });
+    }
+
+    // Indicadores anuais
+    var totalInc  = incomes.reduce(function(a,b){return a+b;}, 0);
+    var totalExp  = expenses.reduce(function(a,b){return a+b;}, 0);
+    var mesesComDados = incomes.filter(function(v){return v > 0;}).length || 1;
+    var mediaInc  = totalInc / mesesComDados;
+    var mediaExp  = totalExp / mesesComDados;
+    var taxaPoup  = totalInc > 0 ? Math.round(((totalInc - totalExp) / totalInc) * 100) : 0;
+
+    var indEl = document.getElementById('indicadores');
+    var indicadores = [
+      { label: 'Total de entradas no ano',    value: brl(totalInc),  color: 'var(--green)' },
+      { label: 'Total de saidas no ano',      value: brl(totalExp),  color: 'var(--red)' },
+      { label: 'Media de entradas por mes',   value: brl(mediaInc),  color: 'var(--text)' },
+      { label: 'Media de saidas por mes',     value: brl(mediaExp),  color: 'var(--text)' },
+      { label: 'Taxa de poupanca do ano',     value: taxaPoup + '%', color: taxaPoup >= 20 ? 'var(--green-dark)' : 'var(--red)' },
+      { label: 'Saldo acumulado no ano',      value: brl(saldoAcum), color: saldoAcum >= 0 ? 'var(--green-dark)' : 'var(--red)' },
+    ];
+    indEl.innerHTML = '';
+    indicadores.forEach(function(ind) {
+      var div = document.createElement('div');
+      div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);';
+      div.innerHTML =
+        '<span style="font-size:13px;color:var(--text-muted);">' + ind.label + '</span>' +
+        '<span style="font-family:Syne,sans-serif;font-weight:700;font-size:14px;color:' + ind.color + ';">' + ind.value + '</span>';
+      indEl.appendChild(div);
+    });
+  }
+
+  function logout() { localStorage.removeItem('mm_token'); localStorage.removeItem('mm_user'); window.location.href = 'login.html'; }
+
+  document.getElementById('btn-logout').addEventListener('click', logout);
+  document.getElementById('filter-year').addEventListener('change', loadRelatorio);
+
+  setupUser();
+  loadRelatorio();
+</script>
+</body>
+</html>
