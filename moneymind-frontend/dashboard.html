@@ -1315,6 +1315,13 @@
       var resposta = (data && data.reply) ? data.reply : 'Nao consegui processar sua pergunta. Tente novamente.';
       addBotBubble(resposta);
 
+      if (data && data.transaction) {
+       setTimeout(function() {
+       loadDashboard();
+      loadTransactions();
+     }, 500);
+}
+
       // Adiciona resposta ao historico
       chatHistory.push({ role: 'assistant', content: resposta });
 

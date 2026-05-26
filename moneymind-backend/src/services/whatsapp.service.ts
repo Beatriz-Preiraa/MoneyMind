@@ -41,18 +41,30 @@ export const processarMensagemWhatsApp = async (req: Request, res: Response) => 
     console.log(`[WhatsApp] Mensagem de ${numeroUsuario}: "${texto}"`);
 
     // Busca o usuario pelo numero de telefone cadastrado
-    const userResult = await pool.query(
-      "SELECT id, name FROM users WHERE phone = $1 OR phone = $2",
-      [numeroUsuario, "+" + numeroUsuario]
-    );
+    const apenasDigitos = numeroUsuario.replace(/\D/g, "");
+    const semPais = apenasDigitos.startsWith("55") ? apenasDigitos.slice(2) : apenasDigitos;
 
-    // 👇 ADICIONE ESSES DOIS LOGS AQUI ABAIXO:
-    console.log(`👉 Parâmetros buscados: "$1" = ${numeroUsuario} | "$2" = +${numeroUsuario}`);
-    console.log(`👉 Quantidade de usuários encontrados no banco: ${userResult.rows.length}`);
+    const userResult = await pool.query(
+    `SELECT id, name FROM users
+     WHERE phone = $1
+      OR phone = $2
+      OR phone = $3
+      OR phone = $4`,
+  [
+    apenasDigitos,        // 5511999990000
+    "+" + apenasDigitos,  // +5511999990000
+    semPais,              // 11999990000
+    "+55" + semPais,      // +5511999990000
+  ]
+);
+
+    // ADICIONE ESSES DOIS LOGS AQUI ABAIXO:
+    console.log(` Parâmetros buscados: "$1" = ${numeroUsuario} | "$2" = +${numeroUsuario}`);
+    console.log(` Quantidade de usuários encontrados no banco: ${userResult.rows.length}`);
     if (userResult.rows.length > 0) {
-      console.log(`👉 Usuário encontrado:`, userResult.rows[0]);
+      console.log(` Usuário encontrado:`, userResult.rows[0]);
     } else {
-      console.log(`❌ Nenhum usuário retornado para o número ${numeroUsuario}`);
+      console.log(` Nenhum usuário retornado para o número ${numeroUsuario}`);
     }
 
     // Se nao encontrar o usuario, orienta como se cadastrar
