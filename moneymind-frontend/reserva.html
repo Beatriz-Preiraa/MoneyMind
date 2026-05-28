@@ -84,7 +84,56 @@
     .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
     .modal-close { background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 20px; display: flex; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-    .empty-state { text-align: center; padding: 2rem; color: var(--text-hint); font-size: 13px; }
+    /* =============================================
+       RESPONSIVIDADE — MoneyMind Reserva
+    ============================================= */
+    @media (max-width: 1024px) {
+      :root { --sidebar: 200px; }
+    }
+    @media (max-width: 900px) {
+      :root { --sidebar: 0px; }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 1rem 1rem 5rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .main { padding: 0.875rem 0.875rem 5rem; gap: 1rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .hero-value { font-size: 30px; }
+      .aporte-form { flex-direction: column; }
+      .aporte-form .form-input { width: 100% !important; }
+      .btn-primary { width: 100%; }
+      .modal { width: calc(100vw - 2rem); margin: 1rem; }
+    }
+    @media (max-width: 400px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .hero-value { font-size: 26px; }
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: var(--surface);
+      border-top: 0.5px solid var(--border);
+      z-index: 50;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 0.5rem;
+    }
+    .bottom-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; color: var(--text-hint); text-decoration: none;
+      padding: 6px 10px; border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif; font-weight: 500;
+      transition: color 0.13s; cursor: pointer; background: none; border: none;
+    }
+    .bottom-nav-item i { font-size: 20px; }
+    .bottom-nav-item.active { color: var(--green-dark); }
+    @media (max-width: 900px) { .bottom-nav { display: flex; } }
   </style>
 </head>
 <body>
@@ -192,6 +241,15 @@
     </div>
   </main>
 </div>
+
+<!-- bottom nav mobile -->
+<nav class="bottom-nav" aria-label="Navegacao mobile">
+  <a class="bottom-nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i>Home</a>
+  <a class="bottom-nav-item" href="transacoes.html"><i class="ti ti-arrows-exchange"></i>Transações</a>
+  <button class="bottom-nav-item active"><i class="ti ti-piggy-bank"></i>Reserva</button>
+  <a class="bottom-nav-item" href="relatorios.html"><i class="ti ti-chart-pie"></i>Relatórios</a>
+  <a class="bottom-nav-item" href="metas.html"><i class="ti ti-target"></i>Metas</a>
+</nav>
 
 <!-- modal editar meta -->
 <div class="modal-overlay" id="modal-meta">

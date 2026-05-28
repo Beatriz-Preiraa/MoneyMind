@@ -82,6 +82,31 @@
     .btn-ghost { height: 38px; padding: 0 14px; background: transparent; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; }
     .modal-feedback { font-size: 12px; color: var(--red); display: none; }
     .modal-feedback.visible { display: block; }
+
+    /* =============================================
+       RESPONSIVIDADE — MoneyMind Metas
+    ============================================= */
+    @media (max-width: 1024px) { :root { --sidebar: 200px; } }
+    @media (max-width: 900px) {
+      :root { --sidebar: 0px; }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 1rem 1rem 5rem; }
+    }
+    @media (max-width: 640px) {
+      .main { padding: 0.875rem 0.875rem 5rem; gap: 1rem; }
+      .metas-grid { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; gap: 10px; }
+      .btn-primary { width: 100%; justify-content: center; }
+      .modal { width: calc(100vw - 2rem); margin: 1rem; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 0.5px solid var(--border); z-index: 50; justify-content: space-around; align-items: center; padding: 0 0.5rem; }
+    .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--text-hint); text-decoration: none; padding: 6px 10px; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-weight: 500; transition: color 0.13s; cursor: pointer; background: none; border: none; }
+    .bottom-nav-item i { font-size: 20px; }
+    .bottom-nav-item.active { color: var(--green-dark); }
+    @media (max-width: 900px) { .bottom-nav { display: flex; } }
   </style>
 </head>
 <body>
@@ -123,6 +148,15 @@
     </div>
   </main>
 </div>
+
+<!-- bottom nav mobile -->
+<nav class="bottom-nav">
+  <a class="bottom-nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i>Home</a>
+  <a class="bottom-nav-item" href="transacoes.html"><i class="ti ti-arrows-exchange"></i>Transações</a>
+  <a class="bottom-nav-item" href="reserva.html"><i class="ti ti-piggy-bank"></i>Reserva</a>
+  <a class="bottom-nav-item" href="relatorios.html"><i class="ti ti-chart-pie"></i>Relatórios</a>
+  <button class="bottom-nav-item active"><i class="ti ti-target"></i>Metas</button>
+</nav>
 
 <!-- modal nova / editar meta -->
 <div class="modal-overlay" id="modal">

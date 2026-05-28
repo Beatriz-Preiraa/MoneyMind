@@ -58,6 +58,39 @@
     .cat-bar-track { height: 6px; background: var(--bg); border-radius: 999px; overflow: hidden; }
     .cat-bar-fill { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
     .empty-state { text-align: center; padding: 2rem; color: var(--text-hint); font-size: 13px; }
+
+    /* =============================================
+       RESPONSIVIDADE — MoneyMind Relatorios
+    ============================================= */
+    @media (max-width: 1024px) {
+      :root { --sidebar: 200px; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      :root { --sidebar: 0px; }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 1rem 1rem 5rem; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .main { padding: 0.875rem 0.875rem 5rem; gap: 1rem; }
+      .chart-wrap { height: 200px; }
+      .topbar { flex-direction: column; gap: 10px; }
+      .filter-select { width: 100%; }
+      .resumo-table th:nth-child(2),
+      .resumo-table td:nth-child(2) { display: none; } /* oculta coluna Entradas no mobile pequeno */
+    }
+    @media (max-width: 400px) {
+      .resumo-table th:nth-child(3),
+      .resumo-table td:nth-child(3) { display: none; }
+    }
+
+    .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 0.5px solid var(--border); z-index: 50; justify-content: space-around; align-items: center; padding: 0 0.5rem; }
+    .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--text-hint); text-decoration: none; padding: 6px 10px; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-weight: 500; transition: color 0.13s; cursor: pointer; background: none; border: none; }
+    .bottom-nav-item i { font-size: 20px; }
+    .bottom-nav-item.active { color: var(--green-dark); }
+    @media (max-width: 900px) { .bottom-nav { display: flex; } }
   </style>
 </head>
 <body>
@@ -152,6 +185,14 @@
     </div>
   </main>
 </div>
+
+<nav class="bottom-nav">
+  <a class="bottom-nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i>Home</a>
+  <a class="bottom-nav-item" href="transacoes.html"><i class="ti ti-arrows-exchange"></i>Transações</a>
+  <a class="bottom-nav-item" href="reserva.html"><i class="ti ti-piggy-bank"></i>Reserva</a>
+  <button class="bottom-nav-item active"><i class="ti ti-chart-pie"></i>Relatórios</button>
+  <a class="bottom-nav-item" href="metas.html"><i class="ti ti-target"></i>Metas</a>
+</nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
