@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoneyMind — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;--green-mid:#5DCAA5;
+      --red:#D85A30;--red-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;
+      --orange:#E8A000;--orange-light:#FEF3C7;
+      --text:#1a1a18;--text-muted:#6b6b67;--text-hint:#a0a09a;
+      --bg:#f5f4ef;--surface:#ffffff;--border:rgba(0,0,0,0.08);--border-mid:rgba(0,0,0,0.14);
+      --radius:12px;--radius-sm:8px;--sidebar:240px;
+    }
+    html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+    .layout{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh;}
+
+    /* Sidebar */
+    .sidebar{background:var(--text);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:2rem;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;color:#fff;}
+    .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+    .logo-badge{font-size:10px;background:var(--red);color:#fff;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;letter-spacing:0.05em;}
+    .nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+    .nav-label{font-size:10px;font-weight:500;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;padding:0 10px;margin:8px 0 4px;}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius-sm);font-size:14px;color:rgba(255,255,255,0.55);cursor:pointer;border:none;background:transparent;text-align:left;width:100%;font-family:'DM Sans',sans-serif;transition:background 0.13s;text-decoration:none;}
+    .nav-item:hover{background:rgba(255,255,255,0.07);}
+    .nav-item.active{background:rgba(29,158,117,0.15);color:#fff;font-weight:500;}
+    .nav-item.active i{color:var(--green-mid);}
+    .sidebar-user{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.08);}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .user-name{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-role{font-size:11px;color:rgba(255,255,255,0.4);}
+    .btn-logout{margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);font-size:16px;padding:4px;flex-shrink:0;transition:color 0.15s;}
+    .btn-logout:hover{color:var(--red);}
+
+    /* Main */
+    .main{padding:2rem;overflow-y:auto;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;}
+    .page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+    .page-subtitle{font-size:13px;color:var(--text-muted);margin-top:2px;}
+
+    /* Panels */
+    .section-panel{display:none;}
+    .section-panel.active{display:block;}
+
+    /* Stats grid */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+    .stat-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem;}
+    .stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .stat-card-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .stat-card-label{font-size:12px;color:var(--text-muted);font-weight:500;}
+    .stat-card-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1;}
+    .stat-card-sub{font-size:12px;color:var(--text-hint);margin-top:5px;}
+    .stat-card-sub span{font-weight:500;}
+
+    .icon-green{background:var(--green-light);color:var(--green);}
+    .icon-blue{background:var(--blue-light);color:var(--blue);}
+    .icon-orange{background:var(--orange-light);color:var(--orange);}
+    .icon-red{background:var(--red-light);color:var(--red);}
+
+    /* Card */
+    .card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:1.25rem;}
+    .card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+    .card-desc{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .card-body{padding:1.5rem;}
+
+    /* Growth bar chart */
+    .growth-chart{display:flex;align-items:flex-end;gap:12px;height:120px;}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .bar-wrap{width:100%;flex:1;display:flex;align-items:flex-end;min-height:20px;}
+    .bar{width:100%;border-radius:4px 4px 0 0;background:var(--green-light);transition:height 0.5s;position:relative;cursor:pointer;}
+    .bar:hover{background:var(--green-mid);}
+    .bar-label{font-size:11px;color:var(--text-hint);white-space:nowrap;}
+    .bar-value{font-size:11px;font-weight:600;color:var(--text-muted);}
+
+    /* Table */
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{font-size:11px;font-weight:600;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.06em;padding:10px 14px;text-align:left;background:var(--bg);}
+    td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border);}
+    tr:hover td{background:var(--bg);}
+    .td-name{font-weight:500;}
+    .td-email{color:var(--text-muted);}
+    .td-date{color:var(--text-hint);font-size:12px;}
+    .td-tx{font-weight:600;color:var(--green-dark);text-align:center;}
+    .td-status span{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;}
+    .badge-active{background:var(--green-light);color:var(--green-dark);}
+    .badge-inactive{background:var(--bg);color:var(--text-hint);}
+    .btn-view{background:none;border:1px solid var(--border-mid);border-radius:var(--radius-sm);font-size:12px;padding:5px 11px;cursor:pointer;color:var(--text-muted);font-family:'DM Sans',sans-serif;transition:background 0.13s;}
+    .btn-view:hover{background:var(--bg);}
+
+    /* Search & filters */
+    .table-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap;}
+    .search-wrap{position:relative;flex:1;min-width:200px;}
+    .search-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text-hint);}
+    .search-input{width:100%;padding:9px 12px 9px 36px;border:1.5px solid var(--border-mid);border-radius:var(--radius-sm);font-size:13.5px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);outline:none;transition:border-color 0.15s;}
+    .search-input:focus{border-color:var(--green);}
+
+    /* Pagination */
+    .pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-top:1px solid var(--border);font-size:13px;color:var(--text-muted);}
+    .pagination-controls{display:flex;gap:4px;}
+    .page-btn{padding:5px 12px;border:1px solid var(--border-mid);border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:background 0.13s;}
+    .page-btn:hover:not(:disabled){background:var(--bg);}
+    .page-btn:disabled{opacity:0.4;cursor:not-allowed;}
+    .page-btn.current{background:var(--text);color:#fff;border-color:var(--text);}
+
+    /* User modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--surface);border-radius:var(--radius);width:560px;max-width:95vw;max-height:85vh;overflow:auto;}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);}
+    .modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;}
+    .btn-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);padding:4px;}
+    .btn-close:hover{color:var(--text);}
+    .modal-body{padding:1.5rem;}
+    .modal-section{margin-bottom:1.25rem;}
+    .modal-section-title{font-size:11px;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:10px;}
+    .detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.5px;}
+    .detail-row:last-child{border-bottom:none;}
+    .detail-label{color:var(--text-muted);}
+    .detail-value{font-weight:500;}
+
+    /* Loading skeleton */
+    .skeleton{background:linear-gradient(90deg,var(--border) 25%,rgba(0,0,0,0.04) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;right:24px;padding:13px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;z-index:999;transform:translateY(100px);opacity:0;transition:transform 0.3s,opacity 0.3s;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.error{background:var(--red);color:#fff;}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:3rem;color:var(--text-hint);}
+    .empty-state i{font-size:36px;margin-bottom:12px;display:block;}
+
+    @media(max-width:900px){
+      :root{--sidebar:0px;}
+      .sidebar{display:none;}
+      .stats-grid{grid-template-columns:1fr 1fr;}
+    }
+    @media(max-width:500px){
+      .stats-grid{grid-template-columns:1fr;}
+      .main{padding:1rem;}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      MoneyMind
+      <span class="logo-badge">ADMIN</span>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Painel</div>
+      <button class="nav-item active" onclick="switchSection('overview', this)">
+        <i class="ti ti-chart-bar"></i> Visão Geral
+      </button>
+      <button class="nav-item" onclick="switchSection('users', this)">
+        <i class="ti ti-users"></i> Usuários
+      </button>
+      <div class="nav-label">Atalhos</div>
+      <a class="nav-item" href="dashboard.html">
+        <i class="ti ti-layout-dashboard"></i> Ver App
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">A</div>
+      <div style="overflow:hidden;flex:1;">
+        <div class="user-name" id="sidebar-name">Admin</div>
+        <div class="user-role">Administrador</div>
+      </div>
+      <button class="btn-logout" id="btn-logout" title="Sair"><i class="ti ti-logout"></i></button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Painel Administrativo</div>
+        <div class="page-subtitle" id="last-updated">Carregando dados...</div>
+      </div>
+      <button onclick="loadAll()" style="display:flex;align-items:center;gap:7px;padding:9px 16px;background:var(--surface);border:1px solid var(--border-mid);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text-muted);">
+        <i class="ti ti-refresh" id="refresh-icon"></i> Atualizar
+      </button>
+    </div>
+
+    <!-- ── Overview ── -->
+    <div class="section-panel active" id="panel-overview">
+
+      <!-- Stats cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-label">Total de usuários</div>
+            <div class="stat-card-icon icon-green"><i class="ti ti-users"></i></div>
+          </div>
+          <div class="stat-card-value" id="stat-total-users">—</div>
+          <div class="stat-card-sub"><span id="stat-new-7d">—</span> novos esta semana</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-label">Ativos (30 dias)</div>
+            <div class="stat-card-icon icon-blue"><i class="ti ti-activity"></i></div>
+          </div>
+          <div class="stat-card-value" id="stat-active">—</div>
+          <div class="stat-card-sub"><span id="stat-new-30d">—</span> cadastros no mês</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-label">Total de transações</div>
+            <div class="stat-card-icon icon-orange"><i class="ti ti-arrows-exchange"></i></div>
+          </div>
+          <div class="stat-card-value" id="stat-tx">—</div>
+          <div class="stat-card-sub" id="stat-tx-balance">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-label">Metas cadastradas</div>
+            <div class="stat-card-icon icon-red"><i class="ti ti-target"></i></div>
+          </div>
+          <div class="stat-card-value" id="stat-goals">—</div>
+          <div class="stat-card-sub">no sistema</div>
+        </div>
+      </div>
+
+      <!-- Growth chart -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Crescimento de usuários</div>
+            <div class="card-desc">Novos cadastros nos últimos 6 meses</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="growth-chart" id="growth-chart">
+            <div class="empty-state" style="width:100%;padding:1.5rem;">
+              <i class="ti ti-chart-bar" style="font-size:28px;"></i>
+              <p>Carregando...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Users ── -->
+    <div class="section-panel" id="panel-users">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Usuários</div>
+            <div class="card-desc" id="users-count-label">Carregando...</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding-bottom:0;">
+          <div class="table-toolbar">
+            <div class="search-wrap">
+              <i class="ti ti-search"></i>
+              <input class="search-input" type="text" id="search-input"
+                     placeholder="Buscar por nome ou email..."
+                     oninput="debounceSearch(this.value)" />
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Usuário</th>
+                <th>Email</th>
+                <th>Cadastro</th>
+                <th style="text-align:center;">Transações</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="6"><div class="empty-state"><i class="ti ti-loader"></i><p>Carregando...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span id="pagination-info">—</span>
+          <div class="pagination-controls">
+            <button class="page-btn" id="btn-prev" onclick="changePage(-1)" disabled>
+              <i class="ti ti-chevron-left"></i>
+            </button>
+            <button class="page-btn current" id="btn-page">1</button>
+            <button class="page-btn" id="btn-next" onclick="changePage(1)">
+              <i class="ti ti-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- User detail modal -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Detalhes do usuário</div>
+      <button class="btn-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <p style="color:var(--text-hint);">Carregando...</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast error" id="toast">
+  <i class="ti ti-alert-circle"></i>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+  var API_URL = 'http://localhost:3333/api';
+  var token   = localStorage.getItem('mm_token');
+
+  if (!token) window.location.href = 'login.html';
+
+  // Paginação e busca
+  var currentPage   = 1;
+  var totalPages    = 1;
+  var searchTimeout = null;
+  var searchQuery   = '';
+
+  // ── Utils ──────────────────────────────────────
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3500);
+  }
+
+  function fmtNumber(n) {
+    return Number(n || 0).toLocaleString('pt-BR');
+  }
+
+  function fmtCurrency(n) {
+    return Number(n || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('pt-BR');
+  }
+
+  function getInitials(name) {
+    var parts = (name || '').trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    return (name || '??').substring(0, 2).toUpperCase();
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token };
+  }
+
+  // ── Section switch ──────────────────────────────
+
+  function switchSection(name, btn) {
+    document.querySelectorAll('.section-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('panel-' + name).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (name === 'users') loadUsers();
+  }
+
+  // ── Load stats ──────────────────────────────────
+
+  async function loadStats() {
+    try {
+      var res  = await fetch(API_URL + '/admin/stats', { headers: authHeaders() });
+      if (res.status === 403) {
+        showToast('Acesso negado — você precisa de permissão de admin.');
+        return;
+      }
+      if (!res.ok) throw new Error('stats error');
+      var d = await res.json();
+
+      document.getElementById('stat-total-users').textContent = fmtNumber(d.users.total);
+      document.getElementById('stat-new-7d').textContent      = fmtNumber(d.users.new_last_7d);
+      document.getElementById('stat-active').textContent      = fmtNumber(d.users.active_last_30d);
+      document.getElementById('stat-new-30d').textContent     = fmtNumber(d.users.new_last_30d);
+      document.getElementById('stat-tx').textContent          = fmtNumber(d.transactions.total);
+      document.getElementById('stat-tx-balance').textContent  =
+        'Receitas: ' + fmtCurrency(d.transactions.total_income);
+      document.getElementById('stat-goals').textContent = fmtNumber(d.goals.total);
+
+      var now = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+      document.getElementById('last-updated').textContent = 'Atualizado às ' + now;
+    } catch (err) {
+      console.error('Erro ao carregar stats:', err);
+    }
+  }
+
+  // ── Load growth chart ───────────────────────────
+
+  async function loadGrowth() {
+    try {
+      var res  = await fetch(API_URL + '/admin/growth', { headers: authHeaders() });
+      if (!res.ok) return;
+      var data = await res.json();
+
+      var chart = document.getElementById('growth-chart');
+      if (!data.length) {
+        chart.innerHTML = '<div class="empty-state" style="width:100%;padding:1.5rem;"><i class="ti ti-chart-bar"></i><p>Nenhum dado disponível</p></div>';
+        return;
+      }
+
+      var max = Math.max.apply(null, data.map(function(d) { return Number(d.new_users); }));
+
+      chart.innerHTML = data.map(function(d) {
+        var pct = max > 0 ? (Number(d.new_users) / max * 100) : 5;
+        return '<div class="bar-col">' +
+          '<div class="bar-value">' + d.new_users + '</div>' +
+          '<div class="bar-wrap"><div class="bar" style="height:' + Math.max(pct, 5) + '%" title="' + d.new_users + ' usuários"></div></div>' +
+          '<div class="bar-label">' + d.month + '</div>' +
+          '</div>';
+      }).join('');
+    } catch (err) {
+      console.error('Erro ao carregar growth:', err);
+    }
+  }
+
+  // ── Load users table ────────────────────────────
+
+  async function loadUsers() {
+    var tbody = document.getElementById('users-tbody');
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="ti ti-loader"></i><p>Carregando...</p></div></td></tr>';
+
+    try {
+      var url  = API_URL + '/admin/users?page=' + currentPage + '&limit=15';
+      if (searchQuery) url += '&search=' + encodeURIComponent(searchQuery);
+
+      var res  = await fetch(url, { headers: authHeaders() });
+      if (!res.ok) throw new Error('users error');
+      var d    = await res.json();
+
+      totalPages = d.pagination.total_pages || 1;
+      document.getElementById('users-count-label').textContent =
+        fmtNumber(d.pagination.total) + ' usuários cadastrados';
+      document.getElementById('pagination-info').textContent =
+        'Página ' + currentPage + ' de ' + totalPages + ' — ' + fmtNumber(d.pagination.total) + ' resultados';
+      document.getElementById('btn-page').textContent = currentPage;
+      document.getElementById('btn-prev').disabled = currentPage <= 1;
+      document.getElementById('btn-next').disabled = currentPage >= totalPages;
+
+      if (!d.users.length) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="ti ti-users-off"></i><p>Nenhum usuário encontrado.</p></div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = d.users.map(function(u) {
+        var initials    = getInitials(u.name);
+        var isActive    = u.last_transaction_at &&
+          (Date.now() - new Date(u.last_transaction_at).getTime() < 30 * 86400000);
+        var statusBadge = isActive
+          ? '<span class="badge-active"><i class="ti ti-circle-filled" style="font-size:8px;"></i> Ativo</span>'
+          : '<span class="badge-inactive"><i class="ti ti-circle" style="font-size:8px;"></i> Inativo</span>';
+
+        return '<tr>' +
+          '<td class="td-name"><div style="display:flex;align-items:center;gap:10px;">' +
+            '<div style="width:30px;height:30px;border-radius:50%;background:var(--text);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + initials + '</div>' +
+            '<span>' + escapeHtml(u.name) + '</span>' +
+          '</div></td>' +
+          '<td class="td-email">' + escapeHtml(u.email) + '</td>' +
+          '<td class="td-date">' + fmtDate(u.created_at) + '</td>' +
+          '<td class="td-tx">' + (u.total_transactions || 0) + '</td>' +
+          '<td class="td-status">' + statusBadge + '</td>' +
+          '<td><button class="btn-view" onclick="viewUser(\'' + u.id + '\')">Ver detalhes</button></td>' +
+          '</tr>';
+      }).join('');
+
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="ti ti-alert-circle"></i><p>Erro ao carregar usuários.</p></div></td></tr>';
+      console.error(err);
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function changePage(dir) {
+    currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
+    loadUsers();
+  }
+
+  function debounceSearch(val) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(function() {
+      searchQuery = val;
+      currentPage = 1;
+      loadUsers();
+    }, 400);
+  }
+
+  // ── User detail modal ───────────────────────────
+
+  async function viewUser(id) {
+    document.getElementById('user-modal').classList.add('open');
+    document.getElementById('modal-body').innerHTML = '<p style="color:var(--text-hint);text-align:center;padding:2rem;">Carregando...</p>';
+
+    try {
+      var res  = await fetch(API_URL + '/admin/users/' + id, { headers: authHeaders() });
+      if (!res.ok) throw new Error();
+      var d    = await res.json();
+
+      document.getElementById('modal-title').textContent = d.user.name;
+
+      var txRows = (d.recent_transactions || []).slice(0, 5).map(function(t) {
+        var color = t.type === 'income' ? 'var(--green)' : 'var(--red)';
+        var sign  = t.type === 'income' ? '+' : '-';
+        return '<tr>' +
+          '<td style="padding:8px 0;font-size:13px;">' + escapeHtml(t.description) + '</td>' +
+          '<td style="padding:8px 0;font-size:13px;color:var(--text-muted);">' + escapeHtml(t.category_name || '—') + '</td>' +
+          '<td style="padding:8px 0;font-size:13px;font-weight:600;color:' + color + ';text-align:right;">' +
+            sign + fmtCurrency(t.amount) + '</td>' +
+          '</tr>';
+      }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-hint);padding:1rem;">Nenhuma transação</td></tr>';
+
+      var goalsRows = (d.goals || []).map(function(g) {
+        var pct = g.target_amount > 0 ? Math.min(100, (g.current_amount / g.target_amount * 100)) : 0;
+        return '<div style="margin-bottom:10px;">' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">' +
+            '<span>' + escapeHtml(g.name) + '</span>' +
+            '<span style="color:var(--text-muted);">' + fmtCurrency(g.current_amount) + ' / ' + fmtCurrency(g.target_amount) + '</span>' +
+          '</div>' +
+          '<div style="height:6px;background:var(--border-mid);border-radius:3px;overflow:hidden;">' +
+            '<div style="height:100%;width:' + pct.toFixed(1) + '%;background:var(--green);border-radius:3px;"></div>' +
+          '</div>' +
+        '</div>';
+      }).join('') || '<p style="color:var(--text-hint);font-size:13px;">Nenhuma meta</p>';
+
+      document.getElementById('modal-body').innerHTML = `
+        <div class="modal-section">
+          <div class="modal-section-title">Dados pessoais</div>
+          <div class="detail-row"><span class="detail-label">Nome</span><span class="detail-value">${escapeHtml(d.user.name)}</span></div>
+          <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${escapeHtml(d.user.email)}</span></div>
+          <div class="detail-row"><span class="detail-label">Telefone</span><span class="detail-value">${escapeHtml(d.user.phone || '—')}</span></div>
+          <div class="detail-row"><span class="detail-label">Cadastro</span><span class="detail-value">${fmtDate(d.user.created_at)}</span></div>
+          <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value" style="font-family:monospace;font-size:12px;">${escapeHtml(d.user.id)}</span></div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Últimas transações</div>
+          <table style="width:100%;">
+            <thead><tr>
+              <th style="font-size:11px;color:var(--text-hint);padding:6px 0;text-align:left;">Descrição</th>
+              <th style="font-size:11px;color:var(--text-hint);padding:6px 0;text-align:left;">Categoria</th>
+              <th style="font-size:11px;color:var(--text-hint);padding:6px 0;text-align:right;">Valor</th>
+            </tr></thead>
+            <tbody>${txRows}</tbody>
+          </table>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Metas financeiras</div>
+          ${goalsRows}
+        </div>
+      `;
+    } catch (err) {
+      document.getElementById('modal-body').innerHTML = '<p style="color:var(--red);text-align:center;padding:2rem;">Erro ao carregar detalhes.</p>';
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('user-modal').classList.remove('open');
+  }
+
+  document.getElementById('user-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ── Init ────────────────────────────────────────
+
+  document.getElementById('btn-logout').addEventListener('click', function() {
+    localStorage.removeItem('mm_token');
+    localStorage.removeItem('mm_user');
+    window.location.href = 'login.html';
+  });
+
+  // Carrega info do sidebar
+  (function() {
+    var user = JSON.parse(localStorage.getItem('mm_user') || '{}');
+    var name = user.name || 'Admin';
+    var parts = name.trim().split(' ');
+    var initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase() : name.substring(0,2).toUpperCase();
+    document.getElementById('sidebar-avatar').textContent = initials;
+    document.getElementById('sidebar-name').textContent   = name;
+  })();
+
+  async function loadAll() {
+    var icon = document.getElementById('refresh-icon');
+    icon.style.animation = 'spin 1s linear infinite';
+    icon.style.display = 'inline-block';
+    await Promise.all([loadStats(), loadGrowth()]);
+    icon.style.animation = '';
+  }
+
+  loadAll();
+</script>
+</body>
+</html>

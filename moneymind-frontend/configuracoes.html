@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoneyMind — Configurações</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;--green-mid:#5DCAA5;
+      --red:#D85A30;--red-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;
+      --text:#1a1a18;--text-muted:#6b6b67;--text-hint:#a0a09a;
+      --bg:#f5f4ef;--surface:#ffffff;--border:rgba(0,0,0,0.08);--border-mid:rgba(0,0,0,0.14);
+      --radius:12px;--radius-sm:8px;--sidebar:220px;
+    }
+    html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+    .layout{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh;}
+
+    /* Sidebar */
+    .sidebar{background:var(--surface);border-right:0.5px solid var(--border);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:2rem;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+    .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+    .nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+    .nav-label{font-size:10px;font-weight:500;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.08em;padding:0 10px;margin:8px 0 4px;}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius-sm);font-size:14px;color:var(--text-muted);cursor:pointer;border:none;background:transparent;text-align:left;width:100%;font-family:'DM Sans',sans-serif;transition:background 0.13s;text-decoration:none;}
+    .nav-item:hover{background:var(--bg);}
+    .nav-item.active{background:var(--green-light);color:var(--green-dark);font-weight:500;}
+    .sidebar-user{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:var(--radius-sm);}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--text);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .user-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-email{font-size:11px;color:var(--text-hint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .btn-logout{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-hint);font-size:16px;padding:4px;flex-shrink:0;transition:color 0.15s;}
+    .btn-logout:hover{color:var(--red);}
+
+    /* Main */
+    .main{padding:2rem;overflow-y:auto;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;}
+    .page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+    .page-subtitle{font-size:13px;color:var(--text-muted);margin-top:2px;}
+
+    /* Settings layout */
+    .settings-layout{display:grid;grid-template-columns:200px 1fr;gap:1.5rem;align-items:start;}
+    .settings-nav{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+    .settings-nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13.5px;color:var(--text-muted);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.13s;border-left:3px solid transparent;}
+    .settings-nav-item:hover{background:var(--bg);}
+    .settings-nav-item.active{background:var(--green-light);color:var(--green-dark);font-weight:500;border-left-color:var(--green);}
+    .settings-nav-item i{font-size:17px;}
+
+    /* Cards */
+    .settings-content{display:flex;flex-direction:column;gap:1.25rem;}
+    .card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+    .card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+    .card-desc{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .card-body{padding:1.5rem;}
+
+    /* Form elements */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;}
+    .form-group:last-child{margin-bottom:0;}
+    .form-label{font-size:13px;font-weight:500;color:var(--text-muted);}
+    .input-wrap{position:relative;}
+    .input-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text-hint);pointer-events:none;}
+    .form-input{width:100%;padding:10px 12px 10px 38px;border:1.5px solid var(--border-mid);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+    .form-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,0.1);}
+    .form-input.error{border-color:var(--red);}
+    .form-input:disabled{background:var(--bg);color:var(--text-hint);cursor:not-allowed;}
+    .toggle-pass{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-hint);font-size:16px;}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s,transform 0.1s;border:none;}
+    .btn:active{transform:scale(0.98);}
+    .btn-primary{background:var(--text);color:#fff;}
+    .btn-primary:hover{background:#2d2d2b;}
+    .btn-primary:disabled{opacity:0.6;cursor:not-allowed;}
+    .btn-danger{background:var(--red-light);color:var(--red);}
+    .btn-danger:hover{background:#f5d5cb;}
+    .btn-ghost{background:var(--bg);color:var(--text-muted);border:1px solid var(--border-mid);}
+    .btn-ghost:hover{background:#ebebе5;}
+
+    /* Avatar section */
+    .avatar-section{display:flex;align-items:center;gap:1.25rem;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
+    .avatar-big{width:72px;height:72px;border-radius:50%;background:var(--text);color:#fff;font-size:24px;font-weight:800;font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .avatar-info p{font-size:13px;color:var(--text-muted);margin-top:4px;}
+    .avatar-info strong{font-size:15px;}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;right:24px;padding:13px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;z-index:999;transform:translateY(100px);opacity:0;transition:transform 0.3s,opacity 0.3s;pointer-events:none;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.success{background:var(--green-dark);color:#fff;}
+    .toast.error{background:var(--red);color:#fff;}
+
+    /* Alert inline */
+    .inline-alert{display:none;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:1rem;}
+    .inline-alert.show{display:flex;}
+    .inline-alert.error{background:var(--red-light);color:var(--red);}
+    .inline-alert.success{background:var(--green-light);color:var(--green-dark);}
+
+    /* Spinner */
+    .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* Section panel */
+    .section-panel{display:none;}
+    .section-panel.active{display:block;}
+
+    /* Danger zone */
+    .danger-zone{border:1px solid rgba(216,90,48,0.3);border-radius:var(--radius);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+    .danger-title{font-size:14px;font-weight:600;color:var(--red);margin-bottom:3px;}
+    .danger-desc{font-size:13px;color:var(--text-muted);}
+
+    /* Mobile */
+    @media(max-width:900px){
+      :root{--sidebar:0px;}
+      .sidebar{display:none;}
+      .settings-layout{grid-template-columns:1fr;}
+      .settings-nav{display:flex;flex-wrap:wrap;border-radius:var(--radius-sm);}
+      .settings-nav-item{flex:1;min-width:120px;justify-content:center;border-left:none;border-bottom:3px solid transparent;}
+      .settings-nav-item.active{border-bottom-color:var(--green);border-left:none;}
+    }
+    @media(max-width:600px){
+      .form-row{grid-template-columns:1fr;}
+      .main{padding:1rem;}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><div class="logo-dot"></div>MoneyMind</div>
+    <nav class="nav">
+      <div class="nav-label">Principal</div>
+      <a class="nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item" href="transacoes.html"><i class="ti ti-arrows-exchange"></i> Transações</a>
+      <a class="nav-item" href="reserva.html"><i class="ti ti-piggy-bank"></i> Reserva</a>
+      <a class="nav-item" href="relatorios.html"><i class="ti ti-chart-pie"></i> Relatórios</a>
+      <div class="nav-label">Conta</div>
+      <a class="nav-item" href="metas.html"><i class="ti ti-target"></i> Metas</a>
+      <a class="nav-item active" href="configuracoes.html"><i class="ti ti-settings"></i> Configurações</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">??</div>
+      <div style="overflow:hidden;flex:1;">
+        <div class="user-name" id="sidebar-name">Carregando...</div>
+        <div class="user-email" id="sidebar-email"></div>
+      </div>
+      <button class="btn-logout" id="btn-logout" title="Sair"><i class="ti ti-logout"></i></button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Configurações</div>
+        <div class="page-subtitle">Gerencie seu perfil e preferências</div>
+      </div>
+    </div>
+
+    <div class="settings-layout">
+
+      <!-- Settings nav -->
+      <div class="settings-nav">
+        <button class="settings-nav-item active" onclick="switchSection('perfil', this)">
+          <i class="ti ti-user"></i> Perfil
+        </button>
+        <button class="settings-nav-item" onclick="switchSection('seguranca', this)">
+          <i class="ti ti-lock"></i> Segurança
+        </button>
+        <button class="settings-nav-item" onclick="switchSection('conta', this)">
+          <i class="ti ti-shield"></i> Conta
+        </button>
+      </div>
+
+      <div class="settings-content">
+
+        <!-- ─── SEÇÃO: Perfil ─── -->
+        <div class="section-panel active" id="panel-perfil">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Informações pessoais</div>
+                <div class="card-desc">Atualize seu nome, email e telefone</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="avatar-section">
+                <div class="avatar-big" id="profile-avatar">??</div>
+                <div class="avatar-info">
+                  <strong id="profile-display-name">Carregando...</strong>
+                  <p id="profile-display-email">—</p>
+                  <p style="font-size:12px;color:var(--text-hint);margin-top:6px;" id="profile-since">Membro desde —</p>
+                </div>
+              </div>
+
+              <div class="inline-alert" id="alert-perfil">
+                <i class="ti ti-alert-circle"></i>
+                <span id="alert-perfil-msg"></span>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Nome completo</label>
+                  <div class="input-wrap">
+                    <i class="ti ti-user"></i>
+                    <input class="form-input" type="text" id="profile-name" placeholder="Seu nome" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Telefone</label>
+                  <div class="input-wrap">
+                    <i class="ti ti-phone"></i>
+                    <input class="form-input" type="tel" id="profile-phone" placeholder="(11) 99999-0000" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <div class="input-wrap">
+                  <i class="ti ti-mail"></i>
+                  <input class="form-input" type="email" id="profile-email" placeholder="seu@email.com" />
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:0.5rem;">
+                <button class="btn btn-ghost" onclick="loadProfile()">
+                  <i class="ti ti-refresh"></i> Cancelar
+                </button>
+                <button class="btn btn-primary" id="btn-save-profile" onclick="saveProfile()">
+                  <div class="spinner" id="spinner-profile"></div>
+                  <span id="btn-profile-text"><i class="ti ti-device-floppy"></i> Salvar alterações</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SEÇÃO: Segurança ─── -->
+        <div class="section-panel" id="panel-seguranca">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Alterar senha</div>
+                <div class="card-desc">Use uma senha forte com pelo menos 6 caracteres</div>
+              </div>
+            </div>
+            <div class="card-body">
+
+              <div class="inline-alert" id="alert-senha">
+                <i class="ti ti-alert-circle"></i>
+                <span id="alert-senha-msg"></span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Senha atual</label>
+                <div class="input-wrap">
+                  <i class="ti ti-lock"></i>
+                  <input class="form-input" type="password" id="current-password" placeholder="••••••••" />
+                  <button type="button" class="toggle-pass" onclick="togglePass('current-password', this)"><i class="ti ti-eye"></i></button>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Nova senha</label>
+                  <div class="input-wrap">
+                    <i class="ti ti-lock-open"></i>
+                    <input class="form-input" type="password" id="new-password" placeholder="Mínimo 6 caracteres"
+                           oninput="checkStrength(this.value)" />
+                    <button type="button" class="toggle-pass" onclick="togglePass('new-password', this)"><i class="ti ti-eye"></i></button>
+                  </div>
+                  <div style="margin-top:6px;">
+                    <div style="height:4px;background:var(--border-mid);border-radius:4px;overflow:hidden;">
+                      <div id="strength-fill" style="height:100%;width:0%;border-radius:4px;transition:width 0.3s,background 0.3s;"></div>
+                    </div>
+                    <p id="strength-label" style="font-size:11px;color:var(--text-hint);margin-top:4px;"></p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Confirmar nova senha</label>
+                  <div class="input-wrap">
+                    <i class="ti ti-lock-check"></i>
+                    <input class="form-input" type="password" id="confirm-password" placeholder="Repita a nova senha" />
+                    <button type="button" class="toggle-pass" onclick="togglePass('confirm-password', this)"><i class="ti ti-eye"></i></button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
+                <button class="btn btn-primary" id="btn-change-pass" onclick="changePassword()">
+                  <div class="spinner" id="spinner-pass"></div>
+                  <span id="btn-pass-text"><i class="ti ti-key"></i> Atualizar senha</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sessão -->
+          <div class="card" style="margin-top:1rem;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Sessão ativa</div>
+                <div class="card-desc">Informações sobre seu acesso atual</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--green-light);border-radius:var(--radius-sm);">
+                <i class="ti ti-device-desktop" style="font-size:20px;color:var(--green);"></i>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Sessão atual</div>
+                  <div style="font-size:12px;color:var(--text-muted);">Token ativo — expira em 7 dias após o login</div>
+                </div>
+                <div style="margin-left:auto;">
+                  <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--green-dark);background:var(--green);background:rgba(29,158,117,0.15);padding:3px 10px;border-radius:20px;font-weight:500;">
+                    <i class="ti ti-circle-filled" style="font-size:8px;"></i> Ativo
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SEÇÃO: Conta ─── -->
+        <div class="section-panel" id="panel-conta">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Informações da conta</div>
+                <div class="card-desc">Detalhes do seu cadastro no MoneyMind</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);">
+                  <div style="font-size:11px;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">ID da conta</div>
+                  <div style="font-size:13px;font-weight:500;font-family:monospace;word-break:break-all;" id="account-id">—</div>
+                </div>
+                <div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);">
+                  <div style="font-size:11px;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Membro desde</div>
+                  <div style="font-size:13px;font-weight:500;" id="account-since">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:1rem;">
+            <div class="card-header">
+              <div>
+                <div class="card-title" style="color:var(--red);">Zona de perigo</div>
+                <div class="card-desc">Ações irreversíveis — tome cuidado</div>
+              </div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:1rem;">
+              <div class="danger-zone">
+                <div>
+                  <div class="danger-title">Encerrar sessão em todos os dispositivos</div>
+                  <div class="danger-desc">Remove todos os tokens de acesso salvos</div>
+                </div>
+                <button class="btn btn-danger" onclick="logoutAll()">
+                  <i class="ti ti-logout"></i> Sair em tudo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast">
+  <i id="toast-icon" class="ti ti-check"></i>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+  var API_URL = 'http://localhost:3333/api';
+  var token   = localStorage.getItem('mm_token');
+
+  if (!token) window.location.href = 'login.html';
+
+  // ── Utilities ──────────────────────────────────
+
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    document.getElementById('toast-icon').className  = type === 'success' ? 'ti ti-check' : 'ti ti-x';
+    t.className = 'toast ' + type + ' show';
+    setTimeout(function() { t.classList.remove('show'); }, 3500);
+  }
+
+  function showInlineAlert(id, msgId, msg, type) {
+    var el = document.getElementById(id);
+    el.className = 'inline-alert ' + type + ' show';
+    el.querySelector('i').className = type === 'error' ? 'ti ti-alert-circle' : 'ti ti-circle-check';
+    document.getElementById(msgId).textContent = msg;
+  }
+
+  function hideInlineAlert(id) {
+    document.getElementById(id).className = 'inline-alert';
+  }
+
+  function setLoading(btnId, spinnerId, textId, loading) {
+    document.getElementById(btnId).disabled = loading;
+    document.getElementById(spinnerId).style.display = loading ? 'inline-block' : 'none';
+    document.getElementById(textId).style.opacity = loading ? '0.5' : '1';
+  }
+
+  function togglePass(id, btn) {
+    var input  = document.getElementById(id);
+    var icon   = btn.querySelector('i');
+    var hidden = input.type === 'password';
+    input.type    = hidden ? 'text' : 'password';
+    icon.className = hidden ? 'ti ti-eye-off' : 'ti ti-eye';
+  }
+
+  function checkStrength(val) {
+    var fill  = document.getElementById('strength-fill');
+    var label = document.getElementById('strength-label');
+    if (!val) { fill.style.width = '0%'; label.textContent = ''; return; }
+    var score = 0;
+    if (val.length >= 8)          score++;
+    if (/[A-Z]/.test(val))        score++;
+    if (/[0-9]/.test(val))        score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    var levels = [
+      {pct:'20%',color:'#D85A30',text:'Fraca'},
+      {pct:'45%',color:'#e8a000',text:'Razoável'},
+      {pct:'70%',color:'#5DCAA5',text:'Boa'},
+      {pct:'100%',color:'#1D9E75',text:'Forte'},
+    ];
+    var lvl = levels[Math.min(score, 3)];
+    fill.style.width = lvl.pct;
+    fill.style.background = lvl.color;
+    label.textContent = 'Força: ' + lvl.text;
+    label.style.color = lvl.color;
+  }
+
+  function getInitials(name) {
+    var parts = (name || '').trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    return (name || '??').substring(0, 2).toUpperCase();
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+  }
+
+  // ── Section switch ──────────────────────────────
+
+  function switchSection(name, btn) {
+    document.querySelectorAll('.section-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.settings-nav-item').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('panel-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── Load profile ────────────────────────────────
+
+  async function loadProfile() {
+    try {
+      var res  = await fetch(API_URL + '/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+      if (!res.ok) { window.location.href = 'login.html'; return; }
+      var user = await res.json();
+
+      var initials = getInitials(user.name);
+      document.getElementById('sidebar-avatar').textContent  = initials;
+      document.getElementById('profile-avatar').textContent  = initials;
+      document.getElementById('sidebar-name').textContent    = user.name;
+      document.getElementById('sidebar-email').textContent   = user.email;
+      document.getElementById('profile-display-name').textContent = user.name;
+      document.getElementById('profile-display-email').textContent = user.email;
+      document.getElementById('profile-since').textContent   = 'Membro desde ' + formatDate(user.created_at);
+      document.getElementById('profile-name').value  = user.name  || '';
+      document.getElementById('profile-email').value = user.email || '';
+      document.getElementById('profile-phone').value = user.phone || '';
+      document.getElementById('account-id').textContent    = user.id;
+      document.getElementById('account-since').textContent = formatDate(user.created_at);
+      localStorage.setItem('mm_user', JSON.stringify(user));
+    } catch (err) {
+      console.error('Erro ao carregar perfil', err);
+    }
+  }
+
+  // ── Save profile ────────────────────────────────
+
+  async function saveProfile() {
+    hideInlineAlert('alert-perfil');
+    var name  = document.getElementById('profile-name').value.trim();
+    var email = document.getElementById('profile-email').value.trim();
+    var phone = document.getElementById('profile-phone').value.trim();
+
+    if (!name || !email) {
+      showInlineAlert('alert-perfil', 'alert-perfil-msg', 'Nome e email são obrigatórios.', 'error');
+      return;
+    }
+
+    setLoading('btn-save-profile', 'spinner-profile', 'btn-profile-text', true);
+
+    try {
+      var res  = await fetch(API_URL + '/auth/profile', {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body:    JSON.stringify({ name, email, phone: phone || undefined }),
+      });
+      var data = await res.json();
+
+      if (!res.ok) {
+        showInlineAlert('alert-perfil', 'alert-perfil-msg', data.error || 'Erro ao atualizar.', 'error');
+        return;
+      }
+
+      showToast('Perfil atualizado com sucesso!', 'success');
+      loadProfile();
+    } catch (err) {
+      showInlineAlert('alert-perfil', 'alert-perfil-msg', 'Não foi possível conectar ao servidor.', 'error');
+    } finally {
+      setLoading('btn-save-profile', 'spinner-profile', 'btn-profile-text', false);
+    }
+  }
+
+  // ── Change password ─────────────────────────────
+
+  async function changePassword() {
+    hideInlineAlert('alert-senha');
+    var current = document.getElementById('current-password').value;
+    var newPass  = document.getElementById('new-password').value;
+    var confirm  = document.getElementById('confirm-password').value;
+
+    if (!current || !newPass || !confirm) {
+      showInlineAlert('alert-senha', 'alert-senha-msg', 'Preencha todos os campos.', 'error');
+      return;
+    }
+    if (newPass.length < 6) {
+      showInlineAlert('alert-senha', 'alert-senha-msg', 'A nova senha deve ter pelo menos 6 caracteres.', 'error');
+      return;
+    }
+    if (newPass !== confirm) {
+      showInlineAlert('alert-senha', 'alert-senha-msg', 'As senhas não coincidem.', 'error');
+      return;
+    }
+
+    setLoading('btn-change-pass', 'spinner-pass', 'btn-pass-text', true);
+
+    try {
+      var res  = await fetch(API_URL + '/auth/change-password', {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body:    JSON.stringify({ current_password: current, new_password: newPass }),
+      });
+      var data = await res.json();
+
+      if (!res.ok) {
+        showInlineAlert('alert-senha', 'alert-senha-msg', data.error || 'Erro ao alterar senha.', 'error');
+        return;
+      }
+
+      showToast('Senha alterada com sucesso!', 'success');
+      document.getElementById('current-password').value = '';
+      document.getElementById('new-password').value     = '';
+      document.getElementById('confirm-password').value = '';
+      document.getElementById('strength-fill').style.width = '0%';
+      document.getElementById('strength-label').textContent = '';
+    } catch (err) {
+      showInlineAlert('alert-senha', 'alert-senha-msg', 'Não foi possível conectar ao servidor.', 'error');
+    } finally {
+      setLoading('btn-change-pass', 'spinner-pass', 'btn-pass-text', false);
+    }
+  }
+
+  // ── Logout ──────────────────────────────────────
+
+  function logoutAll() {
+    if (!confirm('Isso vai encerrar sua sessão em todos os dispositivos. Continuar?')) return;
+    localStorage.removeItem('mm_token');
+    localStorage.removeItem('mm_user');
+    window.location.href = 'login.html';
+  }
+
+  document.getElementById('btn-logout').addEventListener('click', function() {
+    localStorage.removeItem('mm_token');
+    localStorage.removeItem('mm_user');
+    window.location.href = 'login.html';
+  });
+
+  // ── Init ────────────────────────────────────────
+  loadProfile();
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ import categoryRoutes       from './routes/categoryRoutes';
 import goalRoutes           from './routes/goalRoutes';
 import chatRoutes           from './routes/chatRoutes';
 import whatsappRoutes       from './routes/whatsapp';
+import adminRoutes          from './routes/adminRoutes';
 import { errorHandler }     from './middleware/errorHandler';
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use('/api/categories',   categoryRoutes);
 app.use('/api/goals',        goalRoutes);
 app.use('/api/chat',         chatRoutes);
 app.use('/api/whatsapp',     whatsappRoutes);
+app.use('/api/admin',        adminRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
